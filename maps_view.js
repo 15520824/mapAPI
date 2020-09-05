@@ -173,8 +173,71 @@ MapView.prototype.removeMapHouseAround = function(cellLat,cellLng){
     } 
 }
 
+// MapView.prototype.addMapHouse = function()
+// {
+//     var self = this;
+//     if(this.checkHouse === undefined)
+//     this.checkHouse = [];
+//     if(this.currentHouse === undefined)
+//     this.currentHouse = [];
+//     if(this.dataHouse === undefined)
+//     this.dataHouse = [];
+//     google.maps.event.addListener(self.map, 'zoom_changed', function() {
+//         var zoomLevel = self.map.getZoom();
+//         if(zoomLevel>=10)
+//         {
+//             self.enableHouse = true;
+//             new google.maps.event.trigger( self.map, 'center_changed' );
+//         }else
+//         {
+//             self.enableHouse = true;
+//             // self.removeMapHouse();
+//         }
+//     });
+//     self.map.setZoom(20);
+
+//     google.maps.event.addListener(self.map, "idle", function() {
+//         var bounds = self.map.getBounds();
+//         var ne = bounds.getNorthEast(); // LatLng of the north-east corner
+//         var sw = bounds.getSouthWest();
+
+//         var topRight = [ne.lat(), ne.lng()];
+//         var bottomLeft = [sw.lat(), sw.lng()];
+//         self.bottomLeft = bottomLeft;
+//         self.topRight = topRight;
+//         if(self.enableHouse == true)
+//         {
+//             var queryData = [{lat:{operator:">",value:bottomLeft[0]}},"&&",{lat:{operator:"<",value:topRight[0]}},"&&",
+//             {lng:{operator:">",value:bottomLeft[1]}},"&&",{lng:{operator:"<",value:topRight[1]}}];
+//             self.checkMapHouse(queryData).then(
+//                 function(value){
+//                 self.removeMapHouseAround();
+//                 var arrayTemp = [];
+//                 for(var i=0;i<value.length;i++)
+//                 {
+//                     arrayTemp.push(self.addOrtherMarker(value[i]))
+//                 }
+
+//                 if(self.markerCluster!==undefined)
+//                 {
+//                     self.markerCluster.setMap(null);
+//                     delete self.markerCluster;
+//                 }
+//                 self.markerCluster = new MarkerClusterer(self.map, arrayTemp,
+//                     {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+
+//                 var event = new CustomEvent('change-house');
+//                 self.dispatchEvent(event);
+                
+//             })
+//         }
+        
+//     });
+// }
+
 MapView.prototype.addMapHouse = function()
 {
+    var self = this;
     var self = this;
     if(this.checkHouse === undefined)
     this.checkHouse = [];
@@ -182,47 +245,21 @@ MapView.prototype.addMapHouse = function()
     this.currentHouse = [];
     if(this.dataHouse === undefined)
     this.dataHouse = [];
-    google.maps.event.addListener(self.map, 'zoom_changed', function() {
-        var zoomLevel = self.map.getZoom();
-        if(zoomLevel>=10)
-        {
-            self.enableHouse = true;
-            new google.maps.event.trigger( self.map, 'center_changed' );
-        }else
-        {
-            self.enableHouse = true;
-            // self.removeMapHouse();
-        }
-    });
-    self.map.setZoom(20);
+    var arrayTemp = [];
+    var value = this.dataHouse
+    for(var i=0;i<value.length;i++)
+    {
+        arrayTemp.push(self.addOrtherMarker(value[i]))
+    }
 
-    google.maps.event.addListener(self.map, "idle", function() {
-        var bounds = self.map.getBounds();
-        var ne = bounds.getNorthEast(); // LatLng of the north-east corner
-        var sw = bounds.getSouthWest();
+    if(self.markerCluster!==undefined)
+    {
+        self.markerCluster.setMap(null);
+        delete self.markerCluster;
+    }
+    self.markerCluster = new MarkerClusterer(self.map, arrayTemp,
+        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
-        var topRight = [ne.lat(), ne.lng()];
-        var bottomLeft = [sw.lat(), sw.lng()];
-        self.bottomLeft = bottomLeft;
-        self.topRight = topRight;
-        if(self.enableHouse == true)
-        {
-            var queryData = [{lat:{operator:">",value:bottomLeft[0]}},"&&",{lat:{operator:"<",value:topRight[0]}},"&&",
-            {lng:{operator:">",value:bottomLeft[1]}},"&&",{lng:{operator:"<",value:topRight[1]}}];
-            self.checkMapHouse(queryData).then(
-                function(value){
-                self.removeMapHouseAround();
-                for(var i=0;i<value.length;i++)
-                {
-                    self.addOrtherMarker(value[i]);
-                }
-                var event = new CustomEvent('change-house');
-                self.dispatchEvent(event);
-                
-            })
-        }
-        
-    });
 }
 
 MapView.prototype.addOrtherMarker = function(data)
@@ -236,7 +273,6 @@ MapView.prototype.addOrtherMarker = function(data)
         {
             if(arr[j].getMap()===null)
             {
-                arr[j].setMap(self.map);
                 this.currentHouse.push(position);
             }
         }
@@ -253,7 +289,7 @@ MapView.prototype.addOrtherMarker = function(data)
           };
         var marker = new google.maps.Marker({
             position : new google.maps.LatLng(position[0], position[1]),
-            map : self.map,
+            // map : self.map,
             draggable : false,
             icon : image,
             zIndex : 2
