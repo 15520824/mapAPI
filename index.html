@@ -94,6 +94,15 @@
           <script src="./jsdomelement.js"></script>
           <script src="./markerclusterer.js"></script>
         <script>
+			function getRandomColor() {
+				var letters = '0123456789ABCDEF';
+				var color = '#';
+				for (var i = 0; i < 6; i++) {
+					color += letters[Math.floor(Math.random() * 16)];
+				}
+				return color;
+				}
+
             function initMap()
             {
                 var result = [];
@@ -101,7 +110,7 @@
                 {
                     var ramdomLat = Math.random()*16+8;
                     var ramdomLong = Math.random()*8+102;
-                    result.push({lat:ramdomLat,lng:ramdomLong})
+                    result.push({lat:ramdomLat,lng:ramdomLong,color:getRandomColor()})
                 }
                 var mapView = MapView();
                 mapView.style.height = "100%";

@@ -249,7 +249,7 @@ MapView.prototype.addMapHouse = function()
     var value = this.dataHouse
     for(var i=0;i<value.length;i++)
     {
-        arrayTemp.push(self.addOrtherMarker(value[i]))
+        arrayTemp.push(self.addOrtherMarker(value[i],value[i].color));
     }
 
     if(self.markerCluster!==undefined)
@@ -262,7 +262,7 @@ MapView.prototype.addMapHouse = function()
 
 }
 
-MapView.prototype.addOrtherMarker = function(data)
+MapView.prototype.addOrtherMarker = function(data , color = systemconfig.markerColor)
 {
     var self = this;
     var position = [data.lat,data.lng];
@@ -279,13 +279,17 @@ MapView.prototype.addOrtherMarker = function(data)
         var marker = arr;
     }else{
         var image = {
-            url: "./assets/images/marker-red.png",
+            path: "M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z",
             // This marker is 20 pixels wide by 32 pixels high.
-            scaledSize: new google.maps.Size(24, 24), 
+            scaledSize: new google.maps.Size(24, 24),
             // The origin for this image is (0, 0).
             origin: new google.maps.Point(0, 0),
             // The anchor for this image is the base of the flagpole at (0, 32).
-            anchor: new google.maps.Point(12, 12)
+            anchor: new google.maps.Point(12, 12),
+            fillColor: color,
+            fillOpacity: 1,
+            strokeColor: "white",
+            strokeWeight: 4
           };
         var marker = new google.maps.Marker({
             position : new google.maps.LatLng(position[0], position[1]),
