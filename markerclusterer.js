@@ -1,3 +1,4 @@
+
 /**
  * @name MarkerClustererPlus for Google Maps V3
  * @version 2.1.1 [November 4, 2013]
@@ -494,6 +495,7 @@ Cluster.prototype.addMarker = function (marker) {
 
   mCount = this.markers_.length;
   mz = this.markerClusterer_.getMaxZoom();
+
   if (mz !== null && this.map_.getZoom() > mz) {
     // Zoomed in past max zoom, so show the marker.
     if (marker.getMap() !== this.map_) {
@@ -1484,7 +1486,6 @@ MarkerClusterer.prototype.addToClosestCluster_ = function (marker) {
       }
     }
   }
-
   if (clusterToAddTo && clusterToAddTo.isMarkerInClusterBounds(marker)) {
     clusterToAddTo.addMarker(marker);
   } else {
@@ -1543,6 +1544,14 @@ MarkerClusterer.prototype.createClusters_ = function (iFirst) {
 
   for (i = iFirst; i < iLast; i++) {
     marker = this.markers_[i];
+    if(this.markers_.isFilter === true)
+    {
+      if(marker.isFilter === undefined)
+      {
+        marker.setMap(null);
+        continue;
+      }
+    }
     if (!marker.isAdded && this.isMarkerInBounds_(marker, bounds)) {
       if (!this.ignoreHidden_ || (this.ignoreHidden_ && marker.getVisible())) {
         this.addToClosestCluster_(marker);

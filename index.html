@@ -88,11 +88,13 @@
 		        } (regContent);
 		        return false;
 		    } ()) ModuleManagerClass = null;
-        </script>
-          <script src="./maps_view.js"></script>
-          <script src="./jsencoding.js"></script>
-          <script src="./jsdomelement.js"></script>
-          <script src="./markerclusterer.js"></script>
+		</script>
+		<script src="./absol_full.js"></script>
+		<script src="./maps_view.js"></script>
+		<script src="./jsencoding.js"></script>
+		<script src="./jsdomelement.js"></script>
+		<script src="./markerclusterer.js"></script>
+
         <script>
 			function getRandomColor() {
 				var letters = '0123456789ABCDEF';
@@ -106,17 +108,28 @@
             function initMap()
             {
                 var result = [];
-                for(var i = 0;i<10000;i++)
+                for(var i = 0;i<100;i++)
                 {
                     var ramdomLat = Math.random()*16+8;
                     var ramdomLong = Math.random()*8+102;
-                    result.push({lat:ramdomLat,lng:ramdomLong,color:getRandomColor()})
+                    result.push({lat:ramdomLat,lng:ramdomLong,color:getRandomColor(),data:[(Math.floor(Math.random() * Math.floor(2))+1)]})
                 }
                 var mapView = MapView();
-                mapView.style.height = "100%";
-                mapView.addMapDataHouse(result);
-                mapView.addMapHouse();
-                document.body.appendChild(mapView)
+                mapView.style.height = "calc(100% - 30px)";
+                // mapView.addMapDataHouse(result);
+				mapView.addMapHouse(result);
+				var filter = absol.buildDom({
+					tag:"selectmenu",
+					props:{
+						items:[
+							{text:"Có",value:2},
+							{text:"Không",value:1},
+						]
+					}
+				});
+				document.body.appendChild(filter)
+				mapView.addFilter(filter,0);
+				document.body.appendChild(mapView)
             }
         </script>
         <script src="https://maps.googleapis.com/maps/api/js?sensor=set_to_true_or_false&libraries=drawing,places,geometry&key=AIzaSyBBgUUCM0d67G5IP69q_onHy0A7kTnq8qw&callback=initMap"></script>

@@ -1,3 +1,140 @@
+function HashTableFilter(data = []) {
+  
+    this.hash = [];
+    this.data = data;
+    this.check = [];
+    this.functionSetHash(data);
+    this.indexCount = [];
+    this.lastIndex = [];
+    this.lastKey = [];
+    this.lastIndexFilter = [];
+    return this;
+}
+
+HashTableFilter.prototype.functionSetHash = function(data,dataParent = "")
+{
+    var hash = this.hash;
+    var value;
+    var object;
+    for(var m = 0;m<data.length;m++){
+        object = data[m].data.data;
+        var stringCheck = m+dataParent;
+        if(this.check[stringCheck] == undefined){
+            this.check[stringCheck] = [];
+            this.check[stringCheck].data = data[m];
+        }
+        for(var i = 0;i<object.length;i++){
+             if (object[i].value !== undefined)
+                value = object[i].value;
+            else if (typeof object[i] !== "object")
+                value = object[i];
+            else
+                value = "";
+            if(Array.isArray(value))
+            {
+                for(var j=0;j<value.length;j++)
+                {
+                    if(hash[i]===undefined)
+                        hash[i] = [];
+                    if( hash[i][value[j]]===undefined)
+                        hash[i][value[j]] = [];
+                    hash[i][value[j]].push(stringCheck);
+                }
+            }else
+            {
+                if(hash[i]===undefined)
+                    hash[i] = [];
+                if( hash[i][value]===undefined)
+                    hash[i][value] = [];
+                hash[i][value].push(stringCheck);
+            }
+           
+
+            if(data[m].child!==undefined)
+            {
+                this.functionSetHash(data[m].child,"_"+m+dataParent);
+            }
+        }
+       
+    }
+}
+
+HashTableFilter.prototype.getKey = function(key,index){
+    var hash = this.hash;
+
+    this.lastKey[index] = key;
+    if(key == 0)
+    {
+        if(this.lastIndex[index]!==undefined)
+            for(var i = 0;i<this.lastIndex[index].length;i++)
+                this.lastIndex[index][i][index] = undefined;
+        delete this.indexCount[index];
+        var countAll = this.indexCount.reduce((a,b) => a + b, 0);
+
+        if(countAll>0)
+        {
+            for(var tempx in this.indexCount)
+            {
+                index = parseInt(tempx);
+                key = this.lastKey[index];
+                break;
+            }
+        }else
+        {
+            for(var i = 0;i<this.data.length;i++)
+            {
+                if(this.data.isSearch){
+                    if(this.data[i].isSearch === true)
+                        this.data[i].visiable = true;
+                }else
+                    if(this.data[i].isSearch === undefined)
+                        this.data[i].visiable = true;
+
+                this.data[i].isFilter = undefined;
+            }
+            this.data.isFilter =  undefined;
+            return;
+        }
+        
+    }
+
+    this.indexCount[index] = 1;
+    this.data.isFilter = true
+    
+    var countAll = this.indexCount.reduce((a,b) => a + b, 0);
+    if(this.lastIndex[index]!==undefined)
+        for(var i = 0;i<this.lastIndex[index].length;i++)
+            this.lastIndex[index][i][index] = undefined;
+        this.lastIndex[index] = [];
+   
+    for(var i=0;i<this.lastIndexFilter.length;i++)
+    {
+        this.lastIndexFilter[i].isFilter = undefined;
+    }
+    this.lastIndexFilter = [];
+    if(hash[index][key]!==undefined)
+        for(var i = 0;i<hash[index][key].length;i++){
+            var checkRow = this.check[hash[index][key][i]];
+
+            checkRow[index] = true;
+            this.lastIndex[index].push(checkRow);
+            var countIn = 0
+            for(var param in checkRow)
+            {   
+                if(checkRow[param] === true){
+                    countIn++;
+                }   
+            }
+            if(countIn==countAll){
+                this.lastIndexFilter.push(checkRow);
+                checkRow.data.isFilter = true;
+            }
+            else{
+                checkRow.data.isFilter = undefined;
+            }
+        }
+}
+
 window.MapView = MapView;
 function MapView(input, lat = 10, lng = 106){
     var maps = DOMElement.div({
@@ -151,27 +288,27 @@ MapView.prototype.smoothZoom = function (max, cnt) {
     }
 };
 
-MapView.prototype.removeMapHouseAround = function(cellLat,cellLng){
-    var currentLat,currentLng;
-    for(var i = this.currentHouse.length-1;i>=0;i--)
-    {
-        currentLat = this.currentHouse[i][0];
-        currentLng = this.currentHouse[i][1];
-        if(currentLat<this.bottomLeft[0]||
-                currentLat>this.topRight[0]||
-                    currentLng<this.bottomLeft[1]||
-                        currentLng>this.topRight[1])
-        {
-            var arr = this.checkHouse[currentLat][currentLng];
+// MapView.prototype.removeMapHouseAround = function(cellLat,cellLng){
+//     var currentLat,currentLng;
+//     for(var i = this.currentHouse.length-1;i>=0;i--)
+//     {
+//         currentLat = this.currentHouse[i][0];
+//         currentLng = this.currentHouse[i][1];
+//         if(currentLat<this.bottomLeft[0]||
+//                 currentLat>this.topRight[0]||
+//                     currentLng<this.bottomLeft[1]||
+//                         currentLng>this.topRight[1])
+//         {
+//             var arr = this.checkHouse[currentLat][currentLng];
 
-            for(var j = 0;j<arr.length;j++)
-            {
-                arr[j].setMap(null);
-            }
-            this.currentHouse.splice(i,1);
-        }
-    } 
-}
+//             for(var j = 0;j<arr.length;j++)
+//             {
+//                 arr[j].setMap(null);
+//             }
+//             this.currentHouse.splice(i,1);
+//         }
+//     } 
+// }
 
 // MapView.prototype.addMapHouse = function()
 // {
@@ -235,15 +372,12 @@ MapView.prototype.removeMapHouseAround = function(cellLat,cellLng){
 //     });
 // }
 
-MapView.prototype.addMapHouse = function()
+MapView.prototype.addMapHouse = function(data)
 {
     var self = this;
-    var self = this;
-    if(this.checkHouse === undefined)
-    this.checkHouse = [];
-    if(this.currentHouse === undefined)
-    this.currentHouse = [];
-    if(this.dataHouse === undefined)
+    if(data !== undefined)
+    this.dataHouse = data;
+    if(this.dataHouse == undefined)
     this.dataHouse = [];
     var arrayTemp = [];
     var value = this.dataHouse
@@ -260,97 +394,60 @@ MapView.prototype.addMapHouse = function()
     self.markerCluster = new MarkerClusterer(self.map, arrayTemp,
         {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
+    self.arrayMarker = self.markerCluster.getMarkers();
+}
+
+MapView.prototype.addFilter = function (input, index, functionChange) {
+    var self = this;
+    // console.log(self.arrayMarker)
+    self.hashTableFilter = new HashTableFilter(self.arrayMarker);
+    var functionFilter;
+    if(functionChange===undefined)
+    {
+        functionFilter = function (event) {
+            self.checkTableViewFilter(input.value, index);
+        }
+    }else
+    {
+        functionFilter = functionChange
+    }
+    input.on("change", functionFilter)
+    if (self.inputFilter === undefined)
+        self.inputFilter = [];
+    self.inputFilter.push([input,index]);
+}
+
+MapView.prototype.checkTableViewFilter = function (value, index) {
+    var self = this;
+    self.hashTableFilter.getKey(value, index);
 }
 
 MapView.prototype.addOrtherMarker = function(data , color = systemconfig.markerColor)
 {
-    var self = this;
     var position = [data.lat,data.lng];
-    if(this.checkHouse[position[0]]!==undefined&&this.checkHouse[position[0]][position[1]]!==undefined)
-    {
-        var arr = this.checkHouse[position[0]][position[1]];
-        for(var j = 0;j<arr.length;j++)
-        {
-            if(arr[j].getMap()===null)
-            {
-                this.currentHouse.push(position);
-            }
-        }
-        var marker = arr;
-    }else{
-        var image = {
-            path: "M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z",
-            // This marker is 20 pixels wide by 32 pixels high.
-            scaledSize: new google.maps.Size(24, 24),
-            // The origin for this image is (0, 0).
-            origin: new google.maps.Point(0, 0),
-            // The anchor for this image is the base of the flagpole at (0, 32).
-            anchor: new google.maps.Point(12, 12),
-            fillColor: color,
-            fillOpacity: 1,
-            strokeColor: "white",
-            strokeWeight: 4
-          };
-        var marker = new google.maps.Marker({
-            position : new google.maps.LatLng(position[0], position[1]),
-            // map : self.map,
-            draggable : false,
-            icon : image,
-            zIndex : 2
-        });
 
-        var imageHover = {
-            url : "./assets/images/marker-green.png",
-            // This marker is 20 pixels wide by 32 pixels high.
-            scaledSize : new google.maps.Size(24, 24), 
-            // The origin for this image is (0, 0).
-            origin : new google.maps.Point(0, 0),
-            // The anchor for this image is the base of the flagpole at (0, 32).
-            anchor : new google.maps.Point(12, 12)
-          };
-        // var mouseOverInfoWindow = false, timeoutID;
-        var infowindow = new google.maps.InfoWindow({
-            maxWidth : 350
-          });
-         
-        // google.maps.event.addListener(infowindow, 'domready', function() {
+    var image = {
+        path: "M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z",
+        // This marker is 20 pixels wide by 32 pixels high.
+        scaledSize: new google.maps.Size(24, 24),
+        // The origin for this image is (0, 0).
+        origin: new google.maps.Point(0, 0),
+        // The anchor for this image is the base of the flagpole at (0, 32).
+        anchor: new google.maps.Point(12, 12),
+        fillColor: color,
+        fillOpacity: 1,
+        strokeColor: "white",
+        strokeWeight: 4
+        };
+    var marker = new google.maps.Marker({
+        position : new google.maps.LatLng(position[0], position[1]),
+        // map : self.map,
+        draggable : false,
+        icon : image,
+        zIndex : 2
+    });
 
-        //     infowindow.addListener('mouseover', function() {
-        //         mouseOverInfoWindow = true;
-        //     });
-        //     infowindow.addListener('mouseout', function() {
-        //         marker.setIcon(image);
-        //         infowindow.close();
-        //         mouseOverInfoWindow = false;
-        //     });
-        // });
-
-        marker.data = data;
-        // google.maps.event.addListener(marker, 'mouseover', function() {
-        //     infowindow.setContent(self.modalMiniRealty(marker.data));
-        //     infowindow.open(self.map, marker);
-        //     marker.setIcon(imageHover);
-        // });
-        // google.maps.event.addListener(marker, 'mouseout', function(event) {
-        //     // timeoutID = setTimeout(function() {
-        //     //     if (!mouseOverInfoWindow) {
-        //     //         marker.setIcon(image);
-        //     //         infowindow.close();
-        //     //     }
-        //     //   }, 400);
-        //       marker.setIcon(image);
-        //       infowindow.close();
-        // });
-       
-        if(this.checkHouse[position[0]]===undefined)
-            this.checkHouse[position[0]]=[];
-        if(this.checkHouse[position[0]][position[1]] === undefined)
-            this.checkHouse[position[0]][position[1]] = [marker];
-        else
-        this.checkHouse[position[0]][position[1]].push(marker);
-        this.currentHouse.push(position);
-    }
- 
+    marker.data = data;
 
     return marker; 
 }
