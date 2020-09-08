@@ -135,7 +135,7 @@ function MapView(input, lat = 10, lng = 106){
             className: "card-edit-company-block-maps-child"
         }
     });
-    var map = new google.maps.Map(maps, {zoom: 14.5,center: new google.maps.LatLng(lat, lng)});
+    var map = new google.maps.Map(maps, {zoom: 12,center: new google.maps.LatLng(lat, lng)});
     Object.assign(maps, MapView.prototype);
     maps.map = map;
     maps.draggable =true;
