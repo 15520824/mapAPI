@@ -1,5 +1,5 @@
 function HashTableFilter(data = []) {
-  
+
     this.hash = [];
     this.data = data;
     this.check = [];
@@ -48,14 +48,14 @@ HashTableFilter.prototype.functionSetHash = function(data,dataParent = "")
                     hash[i][value] = [];
                 hash[i][value].push(stringCheck);
             }
-           
+
 
             if(data[m].child!==undefined)
             {
                 this.functionSetHash(data[m].child,"_"+m+dataParent);
             }
         }
-       
+
     }
 }
 
@@ -70,7 +70,6 @@ HashTableFilter.prototype.getKey = function(key,index){
                 this.lastIndex[index][i][index] = undefined;
         delete this.indexCount[index];
         var countAll = this.indexCount.reduce((a,b) => a + b, 0);
-
         if(countAll>0)
         {
             for(var tempx in this.indexCount)
@@ -81,25 +80,27 @@ HashTableFilter.prototype.getKey = function(key,index){
             }
         }else
         {
+            this.lastIndexFilter = [];
             for(var i = 0;i<this.data.length;i++)
             {
                 this.data[i].isFilter = undefined;
+                this.lastIndexFilter.push({data:this.data[i]})
             }
             this.data.isFilter =  undefined;
             return;
         }
-        
+
     }
 
     this.indexCount[index] = 1;
     this.data.isFilter = true
-    
+
     var countAll = this.indexCount.reduce((a,b) => a + b, 0);
     if(this.lastIndex[index]!==undefined)
         for(var i = 0;i<this.lastIndex[index].length;i++)
             this.lastIndex[index][i][index] = undefined;
         this.lastIndex[index] = [];
-   
+
     for(var i=0;i<this.lastIndexFilter.length;i++)
     {
         this.lastIndexFilter[i].data.isFilter = undefined;
@@ -113,10 +114,10 @@ HashTableFilter.prototype.getKey = function(key,index){
             this.lastIndex[index].push(checkRow);
             var countIn = 0
             for(var param in checkRow)
-            {   
+            {
                 if(checkRow[param] === true){
                     countIn++;
-                }   
+                }
             }
             if(countIn==countAll){
                 this.lastIndexFilter.push(checkRow);
@@ -130,6 +131,11 @@ HashTableFilter.prototype.getKey = function(key,index){
 
 window.MapView = MapView;
 function MapView(input, lat = 10, lng = 106){
+    var maps = DOMElement.div({
+        attrs: {
+            className: "card-edit-company-block-maps-child"
+        }
+    });
     var maps = DOMElement.div({
         attrs: {
             className: "card-edit-company-block-maps-child"
@@ -356,11 +362,11 @@ MapView.prototype.addOrtherMarker = function(data , color = systemconfig.markerC
 
     marker.data = data;
 
-    return marker; 
+    return marker;
 }
 
 MapView.prototype.checkMapHouse = function(operator)
-{   
+{
     return new Promise(function(resolve,reject){
         if(this.worker!==undefined)
         {
@@ -400,13 +406,13 @@ function worker_function() {
         }
         this.postMessage(result)
     }
-     
+
     function generalOperator(data,WHERE)
     {
         var stringResult = operator(data,WHERE);
         return eval(stringResult);
     }
-    
+
     function operator(data,WHERE)
     {
         var stringResult = "(";
@@ -416,7 +422,7 @@ function worker_function() {
         }
         return stringResult+")";
     }
-     
+
     function equal(data,WHERE)
     {
         var stringResult = "";

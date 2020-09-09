@@ -112,7 +112,7 @@
                 {
                     var ramdomLat = Math.random()*16+8;
                     var ramdomLong = Math.random()*8+102;
-                    result.push({lat:ramdomLat,lng:ramdomLong,color:getRandomColor(),data:[(Math.floor(Math.random() * Math.floor(2))+1)]})
+                    result.push({lat:ramdomLat,lng:ramdomLong,color:getRandomColor(),data:[(Math.floor(Math.random() * Math.floor(2))+1),(Math.floor(Math.random() * Math.floor(2))+1)]})
                 }
                 var mapView = MapView();
                 mapView.style.height = "calc(100% - 30px)";
@@ -125,12 +125,27 @@
 							{text:"Có",value:2},
 							{text:"Không",value:1},
 							{text:"Tất cả",value:0},
+							{text:"Sai",value:3},
+						]
+					}
+				});
+				var filter1 = absol.buildDom({
+					tag:"selectmenu",
+					props:{
+						items:[
+							{text:"Có",value:2},
+							{text:"Không",value:1},
+							{text:"Tất cả",value:0},
+							{text:"Sai",value:3},
 						]
 					}
 				});
 				document.body.appendChild(filter)
+				document.body.appendChild(filter1)
 				mapView.addFilter(filter,0);
-				document.body.appendChild(mapView)
+				mapView.addFilter(filter1,1);
+				document.body.appendChild(mapView);
+				console.log(mapView)
             }
         </script>
         <script src="https://maps.googleapis.com/maps/api/js?sensor=set_to_true_or_false&libraries=drawing,places,geometry&key=AIzaSyBBgUUCM0d67G5IP69q_onHy0A7kTnq8qw&callback=initMap"></script>
