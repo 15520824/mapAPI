@@ -385,7 +385,6 @@ MapView.prototype.addOrtherMarker = function(data)
         google.maps.event.addListener(marker, 'mouseover', function() {
             infowindow.setContent(content);
             infowindow.open(self.map, marker);
-            console.log(marker)
         });
         google.maps.event.addListener(marker, 'mouseout', function(event) {
             infowindow.close();
