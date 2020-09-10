@@ -7,7 +7,7 @@ for(var i = 0;i<100;i++)
 {
     var ramdomLat = Math.random()*16+8;
     var ramdomLong = Math.random()*8+102;
-    result.push({lat:ramdomLat,lng:ramdomLong,color:getRandomColor(),data:[(Math.floor(Math.random() * Math.floor(2))+1)]})
+    result.push({lat:ramdomLat,lng:ramdomLong,color:getRandomColor(),tooltip:{style:{},element:{}},data:[(Math.floor(Math.random() * Math.floor(2))+1)]})
 }
 var mapView = MapView();
 mapView.style.height = "calc(100% - 30px)";
