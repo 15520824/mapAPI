@@ -184,11 +184,8 @@ ClusterIcon.prototype.onAdd = function () {
      * @param {Cluster} c The cluster that the mouse moved over.
      * @event
      */
-
-    ////////////List Marker get data in Here/////////////
-    // console.log(cClusterIcon.cluster_.markers_)
-    
     google.maps.event.trigger(mc, "mouseover", cClusterIcon.cluster_);
+    google.maps.event.trigger(cClusterIcon.cluster_, "mouseover" );
   });
 
   google.maps.event.addDomListener(this.div_, "mouseout", function () {
@@ -200,7 +197,44 @@ ClusterIcon.prototype.onAdd = function () {
      * @event
      */
     google.maps.event.trigger(mc, "mouseout", cClusterIcon.cluster_);
+    google.maps.event.trigger(cClusterIcon.cluster_, "mouseout");
   });
+
+
+  var mc = this.cluster_.getMarkerClusterer();
+  if(mc.markers_.caculateSum!==undefined)
+  {
+    var infowindow = new google.maps.InfoWindow({
+      maxWidth : 350
+    });
+    google.maps.event.addListener(this.cluster_, 'mouseover', function(event) {
+      var tooltip = mc.markers_.caculateSum(this.cluster_.markers_);
+      var content,style;
+      if(typeof tooltip == "object")
+      {
+          if(tooltip.style)
+          style = tooltip.style;
+          if(tooltip.element)
+          content = tooltip.element;
+      }
+      else
+      content = tooltip;
+      if(style!==undefined)
+      infowindow.setOptions(style);
+      infowindow.setContent(content);
+      var info = new google.maps.MVCObject;
+      info.set('position', this.center_);
+      info.set('anchorPoint',new google.maps.Point(0, -12));
+      infowindow.open(mc.map, info);
+    }.bind(this));
+    google.maps.event.addListener(this.cluster_, 'mouseout', function(event) {
+        infowindow.close();
+    }.bind(this));
+    google.maps.event.addListener(mc.map, "zoom_changed", function () {
+      infowindow.close();
+    })
+  }
+
 };
 
 

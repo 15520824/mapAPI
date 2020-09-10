@@ -136,11 +136,6 @@ function MapView(input, lat = 10, lng = 106){
             className: "card-edit-company-block-maps-child"
         }
     });
-    var maps = DOMElement.div({
-        attrs: {
-            className: "card-edit-company-block-maps-child"
-        }
-    });
     var map = new google.maps.Map(maps, {zoom: 12,center: new google.maps.LatLng(lat, lng)});
     Object.assign(maps, MapView.prototype);
     maps.map = map;
@@ -212,6 +207,7 @@ MapView.prototype.addMoveMarker = function (position, color = systemconfig.marke
                 var result = [event.latLng.lat(), event.latLng.lng()];
                 self.map.setCenter(new google.maps.LatLng(result[0], result[1]));
                 self.smoothZoom(20, self.map.getZoom());
+                if(self.input)
                 self.input.value = result[0] + "," + result[1];
             });
         }
@@ -295,7 +291,7 @@ MapView.prototype.addMapHouse = function(data)
     var value = this.dataHouse
     for(var i=0;i<value.length;i++)
     {
-        arrayTemp.push(self.addOrtherMarker(value[i],value[i].color));
+        arrayTemp.push(self.addOrtherMarker(value[i]));
     }
 
     if(self.markerCluster!==undefined)
@@ -307,6 +303,8 @@ MapView.prototype.addMapHouse = function(data)
         {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
     self.arrayMarker = self.markerCluster.getMarkers();
+    if(value.caculateSum!==undefined)
+    self.arrayMarker.caculateSum = value.caculateSum;
 }
 
 MapView.prototype.addFilter = function (input, index, functionChange) {
@@ -335,10 +333,17 @@ MapView.prototype.checkTableViewFilter = function (value, index) {
     google.maps.event.trigger(self.map,'zoom_changed');
 }
 
-MapView.prototype.addOrtherMarker = function(data , color = systemconfig.markerColor)
+MapView.prototype.addOrtherMarker = function(data)
 {
+    var self = this;
     var position = [data.lat,data.lng];
-
+    var color,tooltip;
+    if(typeof testVariable !== "undefined" ) 
+    color = systemconfig.markerColor;
+    if(data.color)
+    color = data.color;
+    if(data.tooltip)
+    tooltip = data.tooltip;
     var image = {
         path: "M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z",
         // This marker is 20 pixels wide by 32 pixels high.
@@ -351,7 +356,7 @@ MapView.prototype.addOrtherMarker = function(data , color = systemconfig.markerC
         fillOpacity: 1,
         strokeColor: "white",
         strokeWeight: 4
-        };
+    };
     var marker = new google.maps.Marker({
         position : new google.maps.LatLng(position[0], position[1]),
         // map : self.map,
@@ -359,7 +364,33 @@ MapView.prototype.addOrtherMarker = function(data , color = systemconfig.markerC
         icon : image,
         zIndex : 2
     });
-
+    if(tooltip)
+    {
+        var style = {
+            maxWidth : 350
+          }
+        var content = "";
+        if(typeof tooltip == "object")
+        {
+            if(tooltip.style)
+            style = tooltip.style;
+            if(tooltip.element)
+            content = tooltip.element;
+        }
+        else
+        content = tooltip;
+        
+        var infowindow = new google.maps.InfoWindow(style);
+    
+        google.maps.event.addListener(marker, 'mouseover', function() {
+            infowindow.setContent(content);
+            infowindow.open(self.map, marker);
+            console.log(marker)
+        });
+        google.maps.event.addListener(marker, 'mouseout', function(event) {
+            infowindow.close();
+        });
+    }
     marker.data = data;
 
     return marker;
