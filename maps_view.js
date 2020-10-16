@@ -114,16 +114,13 @@ HashTableFilter.prototype.getKey = function(key, index) {
                 checkRow.data.isFilter = undefined;
             }
         }
-    console.log("111111111111111")
 }
 
 window.MapView = MapView;
 
 function MapView(input, lat = 10, lng = 106) {
     var maps = absol._({
-        attrs: {
-            className: "card-edit-company-block-maps-child"
-        }
+        class: "card-edit-company-block-maps-child"
     });
     var map = new google.maps.Map(maps, { zoom: 12, center: new google.maps.LatLng(lat, lng) });
     Object.assign(maps, MapView.prototype);
@@ -277,11 +274,13 @@ MapView.prototype.addMapHouse = function(data) {
     if (this.dataHouse == undefined)
         this.dataHouse = [];
     var arrayTemp = [];
-    var value = this.dataHouse
+    var value = this.dataHouse;
+    var now = new Date();
     for (var i = 0; i < value.length; i++) {
-        arrayTemp.push(self.addOrtherMarker(value[i]));
+        value[i].getPosition();
+        arrayTemp.push(value[i]);
     }
-
+    console.log(new Date() - now, "xxxxxxxxx");
     if (self.markerCluster !== undefined) {
         self.markerCluster.setMap(null);
         delete self.markerCluster;
@@ -289,8 +288,8 @@ MapView.prototype.addMapHouse = function(data) {
     self.markerCluster = new MarkerClusterer(self.map, arrayTemp, { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
 
     self.arrayMarker = self.markerCluster.getMarkers();
-    if (value.caculateSum !== undefined)
-        self.arrayMarker.caculateSum = value.caculateSum;
+    // if (value.caculateSum !== undefined)
+    //     self.arrayMarker.caculateSum = value.caculateSum;
 }
 
 MapView.prototype.addFilter = function(input, index, functionChange) {
@@ -317,63 +316,6 @@ MapView.prototype.checkTableViewFilter = function(value, index) {
     google.maps.event.trigger(self.map, 'zoom_changed');
 }
 
-MapView.prototype.addOrtherMarker = function(data) {
-    var self = this;
-    var position = [data.lat, data.lng];
-    var color, tooltip;
-    if (typeof testVariable !== "undefined")
-        color = systemconfig.markerColor;
-    if (data.color)
-        color = data.color;
-    if (data.tooltip)
-        tooltip = data.tooltip;
-    var image = {
-        path: "M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z",
-        // This marker is 20 pixels wide by 32 pixels high.
-        scaledSize: new google.maps.Size(24, 24),
-        // The origin for this image is (0, 0).
-        origin: new google.maps.Point(0, 0),
-        // The anchor for this image is the base of the flagpole at (0, 32).
-        anchor: new google.maps.Point(12, 12),
-        fillColor: color,
-        fillOpacity: 1,
-        strokeColor: "white",
-        strokeWeight: 4
-    };
-    var marker = new google.maps.Marker({
-        position: new google.maps.LatLng(position[0], position[1]),
-        // map : self.map,
-        draggable: false,
-        icon: image,
-        zIndex: 2
-    });
-    if (tooltip) {
-        var style = {
-            maxWidth: 350
-        }
-        var content = "";
-        if (typeof tooltip == "object") {
-            if (tooltip.style)
-                style = tooltip.style;
-            if (tooltip.element)
-                content = tooltip.element;
-        } else
-            content = tooltip;
-
-        var infowindow = new google.maps.InfoWindow(style);
-
-        google.maps.event.addListener(marker, 'mouseover', function() {
-            infowindow.setContent(content);
-            infowindow.open(self.map, marker);
-        });
-        google.maps.event.addListener(marker, 'mouseout', function(event) {
-            infowindow.close();
-        });
-    }
-    marker.data = data;
-
-    return marker;
-}
 
 MapView.prototype.checkMapHouse = function(operator) {
     return new Promise(function(resolve, reject) {
@@ -412,11 +354,15 @@ MapView.prototype.calculateAndDisplayRoute = function(waypoints = []) {
     if (typeof waypoints == "string")
         waypoints = waypoints.split(";")
     for (var i = 0; i < waypoints.length; i++) {
-        if (i == 0)
+        if (i == 0) {
             start = waypoints[i];
-        if (i == waypoints.length - 1)
+            continue;
+        }
+        if (i == waypoints.length - 1) {
             end = waypoints[i];
-        waypointData.push({ location: waypoints[i], stopover: true })
+            continue;
+        }
+        waypointData.push({ location: waypoints[i], stopover: false })
     }
     var request = {
         origin: start,
