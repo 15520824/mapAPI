@@ -277,10 +277,21 @@ MapView.prototype.addMapHouse = function(data) {
     var value = this.dataHouse;
     var now = new Date();
     for (var i = 0; i < value.length; i++) {
-        value[i].getPosition();
+        value[i].getPosition = function(marker) {
+            return function() {
+                return {
+                    lat: function() {
+                        return parseFloat(marker.lat);
+                    },
+                    lng: function() {
+                        return parseFloat(marker.lng);
+                    }
+                }
+            }
+        }(value[i])
         arrayTemp.push(value[i]);
     }
-    console.log(new Date() - now, "xxxxxxxxx");
+    console.log(arrayTemp);
     if (self.markerCluster !== undefined) {
         self.markerCluster.setMap(null);
         delete self.markerCluster;

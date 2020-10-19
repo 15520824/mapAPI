@@ -1490,7 +1490,32 @@ MarkerClusterer.prototype.distanceBetweenPoints_ = function(p1, p2) {
  * @return {boolean} True if the marker is in the bounds.
  */
 MarkerClusterer.prototype.isMarkerInBounds_ = function(marker, bounds) {
-    return bounds.contains(marker.getPosition());
+    if (this.a == undefined || this.b == undefined) {
+        for (var param in bounds) {
+            if (!(this.a == undefined || this.b == undefined))
+                break;
+            if (bounds[param].i > 50) {
+                this.a = param;
+            } else if (bounds[param].i < 50) {
+                this.b = param;
+            }
+        }
+    }
+    var position = marker.getPosition();
+    var minX, maxX, minY, maxY;
+    minX = bounds[this.b].i;
+    maxX = bounds[this.b].j;
+    minY = bounds[this.a].i;
+    maxY = bounds[this.a].j;
+    while (0 > maxY)
+        maxY += 180;
+    maxY += 180;
+    bounds[this.a].j = maxY;
+    if (minX < position.lat() && position.lat() < maxX &&
+        minY < position.lng() && position.lng() < maxY) {
+        return true;
+    }
+    return false;
 };
 
 
@@ -1569,21 +1594,19 @@ MarkerClusterer.prototype.createClusters_ = function(iFirst) {
     var bounds = this.getExtendedBounds(mapBounds);
 
     var iLast = Math.min(iFirst + this.batchSize_, this.markers_.length);
-
     for (i = iFirst; i < iLast; i++) {
-        marker = this.markers_[i];
+        this.markers_[i];
         if (this.markers_.isFilter === true) {
-            if (marker.isFilter === undefined) {
-                marker.setMap(null);
+            if (this.markers_[i].isFilter === undefined) {
+                this.markers_[i].setMap(null);
                 continue;
             }
         }
-        if (!marker.isAdded && this.isMarkerInBounds_(marker, bounds)) {
-            if (!this.ignoreHidden_ || (this.ignoreHidden_ && marker.getVisible())) {
-                if (marker.lat !== undefined) {
-                    marker = this.addOrtherMarker(marker);
-                }
-                this.addToClosestCluster_(marker);
+        if (!this.markers_[i].isAdded && this.isMarkerInBounds_(this.markers_[i], bounds)) {
+            if (!this.ignoreHidden_ || (this.ignoreHidden_ && this.markers_[i].getVisible())) {
+                if (this.markers_[i].getMap === undefined)
+                    this.markers_[i] = this.addOrtherMarker(this.markers_[i]);
+                this.addToClosestCluster_(this.markers_[i]);
             }
         }
     }
