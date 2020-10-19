@@ -373,6 +373,10 @@ MapView.prototype.calculateAndDisplayRoute = function(waypoints = []) {
     var label;
     var labelData = [];
     var tempMarker, latlong;
+    if (this.arrMarkerTemp)
+        for (var i = 0; i < this.arrMarkerTemp.length; i++) {
+            this.arrMarkerTemp[i].setMap(null);
+        }
     this.arrMarkerTemp = [];
     var charater = "A";
     if (typeof waypoints == "string")
