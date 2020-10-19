@@ -16,11 +16,19 @@ HashTableFilter.prototype.functionSetHash = function(data, dataParent = "") {
     var value;
     var object;
     for (var m = 0; m < data.length; m++) {
-        object = data[m].data.data;
+        object = data[m].data;
         var stringCheck = m + dataParent;
         if (this.check[stringCheck] == undefined) {
             this.check[stringCheck] = [];
-            this.check[stringCheck].data = data[m];
+
+            Object.defineProperty(this.check[stringCheck], "data", {
+                set: function(value, m) {
+                    data[m] = value;
+                }.bind(this, m),
+                get: function(m) {
+                    return data[m];
+                }.bind(this, m)
+            });
         }
         for (var i = 0; i < object.length; i++) {
             if (object[i].value !== undefined)
