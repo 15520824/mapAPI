@@ -299,7 +299,6 @@ MapView.prototype.addMapHouse = function(data) {
         }(value[i])
         arrayTemp.push(value[i]);
     }
-    console.log(arrayTemp);
     if (self.markerCluster !== undefined) {
         self.markerCluster.setMap(null);
         delete self.markerCluster;
@@ -358,6 +357,7 @@ MapView.prototype.addRenderToMap = function() {
     if (this.directionsDisplay === undefined) {
         this.directionsDisplay = new google.maps.DirectionsRenderer();
         this.directionsDisplay.setMap(this.map);
+        this.directionsDisplay.setOptions({ suppressMarkers: true });
     }
     if (this.directionsService === undefined)
         this.directionsService = new google.maps.DirectionsService();
@@ -370,9 +370,23 @@ MapView.prototype.calculateAndDisplayRoute = function(waypoints = []) {
     var directionsService = this.directionsService;
     var start;
     var end;
+    var label;
+    var labelData = [];
+    var tempMarker, latlong;
+    this.arrMarkerTemp = [];
+    var charater = "A";
     if (typeof waypoints == "string")
         waypoints = waypoints.split(";")
     for (var i = 0; i < waypoints.length; i++) {
+        label = waypoints[i].split(":");
+        if (label.length > 1) {
+            waypoints[i] = label[1];
+            labelData[i] = label;
+        } else {
+            labelData[i] = [charater, waypoints[i]];
+            charater = charater.charCodeAt(0) + 1;
+            charater = String.fromCharCode(charater);
+        }
         if (i == 0) {
             start = waypoints[i];
             continue;
@@ -393,6 +407,18 @@ MapView.prototype.calculateAndDisplayRoute = function(waypoints = []) {
     directionsService.route(request, function(response, status) {
         if (status == google.maps.DirectionsStatus.OK) {
             directionsDisplay.setDirections(response);
+            for (var param in labelData) {
+                latlong = labelData[param][1].split(",");
+                if (latlong.length != 2)
+                    continue;
+                console.log(labelData[param][0])
+                tempMarker = new google.maps.Marker({
+                    position: new google.maps.LatLng(parseFloat(latlong[0]), parseFloat(latlong[1])),
+                    map: this.map,
+                    label: labelData[param][0],
+                });
+                this.arrMarkerTemp.push(tempMarker)
+            }
             // var route = response.routes[0];
             // var summaryPanel = "";
             // // For each route, display summary information.
@@ -407,7 +433,7 @@ MapView.prototype.calculateAndDisplayRoute = function(waypoints = []) {
         } else {
             alert("Yêu cầu chỉ đường không thành công do " + status);
         }
-    });
+    }.bind(this));
 }
 
 
